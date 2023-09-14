@@ -1,57 +1,91 @@
 import cv2
 import mediapipe as mp
 import numpy as np
+import pandas as pd
+
+labels = {'0' : 'nose',
+'1' : 'left eye (inner)',
+'2' : 'left eye',
+'3' : 'left eye (outer)',
+'4' : 'right eye (inner)',
+'5' : 'right eye',
+'6' : 'right eye (outer)',
+'7' : 'left ear',
+'8' : 'right ear',
+'9' : 'mouth (left)',
+'10' : 'mouth (right)',
+'11' : 'left shoulder',         # ★
+'12' : 'right shoulder',        # ★
+'13' : 'left elbow',            # ★
+'14' : 'right elbow',           # ★
+'15' : 'left wrist',            # ★
+'16' : 'right wrist',           # ★
+'17' : 'left pinky',
+'18' : 'right pinky',
+'19' : 'left index',
+'20' : 'right index',
+'21' : 'left thumb',
+'22' : 'right thumb',
+'23' : 'left hip',              # ★
+'24' : 'right hip',             # ★
+'25' : 'left knee',             # ★    
+'26' : 'right knee',            # ★
+'27' : 'left ankle',            # ★
+'28' : 'right ankle',           # ★
+'29' : 'left heel',
+'30' : 'right heel',
+'31' : 'left foot index',
+'32' : 'right foot index'}
 
 # Video 1
-cap1 = cv2.VideoCapture('D:\WORK\prj_3dhpe\data\\videos\smoke_ch_02.mp4')
+cap = cv2.VideoCapture('D:\WORK\prj_3dhpe\data\\videos\smoke_ch_02.mp4')
+mp_pose = mp.solutions.pose
+mp_draw = mp.solutions.drawing_utils
+mp_drawing_styles = mp.solutions.drawing_styles
+pose = mp_pose.Pose()
+df = pd.DataFrame()        # 빈 dataframe 생성
 
-mp_pose1 = mp.solutions.pose
-mp_draw1 = mp.solutions.drawing_utils
-pose1 = mp_pose1.Pose()
+with mp_pose.Pose(
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5) as pose:
+    while True:
+        ret, img = cap.read()
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = cv2.resize(img, (200, 400))
+        results = pose.process(img)
+        
+        # 랜드마크 생성
+        if results.pose_landmarks:
+            mp_draw.draw_landmarks(img, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
+                                landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
+            for id, lm in enumerate(results.pose_landmarks.landmark):
+                h, w, c = img.shape
+                # print(id, lm)
 
-# Video 2
-cap2 = cv2.VideoCapture('D:\WORK\prj_3dhpe\data\\videos\smoke_ch_03.mp4')
+        cv2.imshow("Estimation", img)
 
-mp_pose2 = mp.solutions.pose
-mp_draw2 = mp.solutions.drawing_utils
-pose2 = mp_pose2.Pose()
+        # 빈 리스트 x 생성
+        x = []
 
-while True:
-    # Video 1
-    ret1, img1 = cap1.read()
-    img1 = cv2.resize(img1, (200, 400))
-    results1 = pose1.process(img1)
+        # k - landmarks 개수
+        # results.pose_landmarks.landmark[k].x/y/z/visibility로 k번째 landmarks의 정보를 가져올 수 있다
+        x.append()
+        for k in range(33):
+            x.append(results.pose_landmarks.landmark[k].x)
+            x.append(results.pose_landmarks.landmark[k].y)
+            x.append(results.pose_landmarks.landmark[k].z)
+            x.append(results.pose_landmarks.landmark[k].visibility)
 
-    # 랜드마크 생성(1)
-    mp_draw1.draw_landmarks(img1, results1.pose_landmarks, mp_pose1.POSE_CONNECTIONS,
-                           mp_draw1.DrawingSpec((255, 0, 0), 2, 2),      # DrawingSpec : landmark 색상, 두께, 반경 지정
-                           mp_draw1.DrawingSpec((255, 0, 255), 2, 2))      # DrawingSpec : connection line 색상, 두께, 반경 지정
-    cv2.imshow("Estimation_01", img1)
-    h1, w1, c1 = img1.shape
+        # list x를 dataframe으로 변경
+        tmp = pd.DataFrame(x).T
 
+        # dataframe에 정보 쌓기(33개 landmarks의 (33*4, x y z, vis)132개 정보)
+        df = pd.concat([df, tmp])
 
-    # Video 2
-    ret2, img2 = cap2.read()
-    img2 = cv2.resize(img2, (200, 400))
-    results2 = pose2.process(img2)
-
-    # 랜드마크 생성(2)
-    mp_draw2.draw_landmarks(img2, results2.pose_landmarks, mp_pose2.POSE_CONNECTIONS,
-                           mp_draw2.DrawingSpec((255, 0, 0), 2, 2),      # DrawingSpec : landmark 색상, 두께, 반경 지정
-                           mp_draw2.DrawingSpec((255, 0, 255), 2, 2))      # DrawingSpec : connection line 색상, 두께, 반경 지정
-    cv2.imshow("Estimation_02", img2)
-    h2, w2, c2 = img2.shape
+        df.to_csv("test.csv")
+        cv2.waitKey(1)
+        print(df)
 
 
-    # 비교 이미지 생성
-    # opImg = np.zeros([h1, w1, c1])
 
-    # # opImg.fill(0)     # 배경을 특정색상으로 지정
-    # mp_draw.draw_landmarks(opImg, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
-    #                        mp_draw.DrawingSpec((255, 0, 0), 2, 2),      # DrawingSpec : landmark 색상, 두께, 반경 지정
-    #                        mp_draw.DrawingSpec((255, 0, 255), 2, 2))      # DrawingSpec : connection line 색상, 두께, 반경 지정
-    # cv2.imshow("Extracted Pose", opImg)    
 
-    # print(results.pose_landmarks)
-
-    cv2.waitKey(1)
