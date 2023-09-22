@@ -1,5 +1,8 @@
 import cv2
 import mediapipe as mp
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
+
 import numpy as np
 import pandas as pd
 
@@ -65,16 +68,22 @@ with mp_pose.Pose(
         cv2.imshow("Estimation", img)
 
         # 빈 리스트 x 생성
-        x = []
+        x = []      
 
+        # 'left shoulder','right shoulder','left elbow','right elbow','left wrist','right wrist','left hip','right hip','left knee','right knee','left ankle','right ankle'
         # k - landmarks 개수
         # results.pose_landmarks.landmark[k].x/y/z/visibility로 k번째 landmarks의 정보를 가져올 수 있다
-        x.append()
+        # x.append()
         for k in range(33):
+            # if (11 <= k < 17) | (23 <= k <29):
             x.append(results.pose_landmarks.landmark[k].x)
             x.append(results.pose_landmarks.landmark[k].y)
             x.append(results.pose_landmarks.landmark[k].z)
             x.append(results.pose_landmarks.landmark[k].visibility)
+        # x.append(results.pose_landmarks.landmark[0].x)
+        # x.append(results.pose_landmarks.landmark[0].y)
+        # x.append(results.pose_landmarks.landmark[0].z)
+        # x.append(results.pose_landmarks.landmark[0].visibility)
 
         # list x를 dataframe으로 변경
         tmp = pd.DataFrame(x).T
