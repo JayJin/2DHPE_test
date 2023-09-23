@@ -22,6 +22,7 @@ clm_list = [
 ]
 
 def get_landmarks(video_route):
+    print(video_route)
     cap = cv2.VideoCapture(video_route)
     mp_pose = mp.solutions.pose
     mp_draw = mp.solutions.drawing_utils
@@ -32,8 +33,9 @@ def get_landmarks(video_route):
     clm = pd.DataFrame(clm_list).T
 
     df = pd.concat([df, clm])
-    print(df)
+    # print(df)
 
+    title = video_route.split('/')[-1].split('.')[0]
 
     with mp_pose.Pose(
         min_detection_confidence=0.5,
@@ -50,7 +52,7 @@ def get_landmarks(video_route):
                                     landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
                 for id, lm in enumerate(results.pose_landmarks.landmark):
                     h, w, c = img.shape
-                    print(id, lm)
+                    # print(id, lm)
 
             cv2.imshow("Estimation", img)
 
@@ -69,9 +71,9 @@ def get_landmarks(video_route):
 
             # dataframe에 정보 쌓기(33개 landmarks의 (33*4, x y z, vis)132개 정보)
             df = pd.concat([df, tmp])
-
-            df.to_csv("test.csv", index=False, header=False)
+            df.to_csv(f"./data/landmarks/{title}.csv", index=False, header=False)
             cv2.waitKey(1)
+
 
 
 
