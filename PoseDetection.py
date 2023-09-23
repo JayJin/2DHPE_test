@@ -21,57 +21,57 @@ clm_list = [
     'r_ankl_x','r_ankl_y','r_ankl_z','r_ankl_vis',
 ]
 
-# Video 1
-cap = cv2.VideoCapture('./data/videos/smoke_ch_02.mp4')
-mp_pose = mp.solutions.pose
-mp_draw = mp.solutions.drawing_utils
-mp_drawing_styles = mp.solutions.drawing_styles
-pose = mp_pose.Pose()
+def get_landmarks(video_route):
+    cap = cv2.VideoCapture(video_route)
+    mp_pose = mp.solutions.pose
+    mp_draw = mp.solutions.drawing_utils
+    mp_drawing_styles = mp.solutions.drawing_styles
+    pose = mp_pose.Pose()
 
-df = pd.DataFrame()        # 빈 dataframe 생성
-clm = pd.DataFrame(clm_list).T
+    df = pd.DataFrame()        # 빈 dataframe 생성
+    clm = pd.DataFrame(clm_list).T
 
-df = pd.concat([df, clm])
-print(df)
+    df = pd.concat([df, clm])
+    print(df)
 
 
-with mp_pose.Pose(
-    min_detection_confidence=0.5,
-    min_tracking_confidence=0.5) as pose:
-    while True:
-        ret, img = cap.read()
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        img = cv2.resize(img, (200, 400))
-        results = pose.process(img)
-        
-        # 랜드마크 생성
-        if results.pose_landmarks:
-            mp_draw.draw_landmarks(img, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
-                                landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
-            for id, lm in enumerate(results.pose_landmarks.landmark):
-                h, w, c = img.shape
-                print(id, lm)
+    with mp_pose.Pose(
+        min_detection_confidence=0.5,
+        min_tracking_confidence=0.5) as pose:
+        while True:
+            ret, img = cap.read()
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img = cv2.resize(img, (200, 400))
+            results = pose.process(img)
+            
+            # 랜드마크 생성
+            if results.pose_landmarks:
+                mp_draw.draw_landmarks(img, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
+                                    landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
+                for id, lm in enumerate(results.pose_landmarks.landmark):
+                    h, w, c = img.shape
+                    print(id, lm)
 
-        cv2.imshow("Estimation", img)
+            cv2.imshow("Estimation", img)
 
-        # 빈 리스트 x 생성
-        x = []      
+            # 빈 리스트 x 생성
+            x = []      
 
-        for k in range(33):
-            if (11 <= k < 17) | (23 <= k <29):
-                x.append(results.pose_landmarks.landmark[k].x)
-                x.append(results.pose_landmarks.landmark[k].y)
-                x.append(results.pose_landmarks.landmark[k].z)
-                x.append(results.pose_landmarks.landmark[k].visibility)
+            for k in range(33):
+                if (11 <= k < 17) | (23 <= k <29):
+                    x.append(results.pose_landmarks.landmark[k].x)
+                    x.append(results.pose_landmarks.landmark[k].y)
+                    x.append(results.pose_landmarks.landmark[k].z)
+                    x.append(results.pose_landmarks.landmark[k].visibility)
 
-        # list x를 dataframe으로 변경
-        tmp = pd.DataFrame(x).T
+            # list x를 dataframe으로 변경
+            tmp = pd.DataFrame(x).T
 
-        # dataframe에 정보 쌓기(33개 landmarks의 (33*4, x y z, vis)132개 정보)
-        df = pd.concat([df, tmp])
+            # dataframe에 정보 쌓기(33개 landmarks의 (33*4, x y z, vis)132개 정보)
+            df = pd.concat([df, tmp])
 
-        df.to_csv("test.csv", index=False, header=False)
-        cv2.waitKey(1)
+            df.to_csv("test.csv", index=False, header=False)
+            cv2.waitKey(1)
 
 
 
