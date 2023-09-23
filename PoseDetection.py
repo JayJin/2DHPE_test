@@ -6,47 +6,34 @@ from mediapipe.tasks.python import vision
 import numpy as np
 import pandas as pd
 
-labels = {'0' : 'nose',
-'1' : 'left eye (inner)',
-'2' : 'left eye',
-'3' : 'left eye (outer)',
-'4' : 'right eye (inner)',
-'5' : 'right eye',
-'6' : 'right eye (outer)',
-'7' : 'left ear',
-'8' : 'right ear',
-'9' : 'mouth (left)',
-'10' : 'mouth (right)',
-'11' : 'left shoulder',         # ★
-'12' : 'right shoulder',        # ★
-'13' : 'left elbow',            # ★
-'14' : 'right elbow',           # ★
-'15' : 'left wrist',            # ★
-'16' : 'right wrist',           # ★
-'17' : 'left pinky',
-'18' : 'right pinky',
-'19' : 'left index',
-'20' : 'right index',
-'21' : 'left thumb',
-'22' : 'right thumb',
-'23' : 'left hip',              # ★
-'24' : 'right hip',             # ★
-'25' : 'left knee',             # ★    
-'26' : 'right knee',            # ★
-'27' : 'left ankle',            # ★
-'28' : 'right ankle',           # ★
-'29' : 'left heel',
-'30' : 'right heel',
-'31' : 'left foot index',
-'32' : 'right foot index'}
+clm_list = [
+    'l_shld_x','l_shld_y','l_shld_z','l_shld_vis',
+    'r_shld_x','r_shld_y','r_shld_z','r_shld_vis',
+    'l_elbw_x','l_elbw_y','l_elbw_z','l_elbw_vis',
+    'r_elbw_x','r_elbw_y','r_elbw_z','r_elbw_vis',
+    'l_wrst_x','l_wrst_y','l_wrst_z','l_wrst_vis',
+    'r_wrst_x','r_wrst_y','r_wrst_z','r_wrst_vis',
+    'l_hip_x','l_hip_y','l_hip_z','l_hip_vis',
+    'r_hip_x','r_hip_y','r_hip_z','r_hip_vis',
+    'l_knee_x','l_knee_y','l_knee_z','l_knee_vis',    
+    'r_knee_x','r_knee_y','r_knee_z','r_knee_vis',
+    'l_ankl_x','l_ankl_y','l_ankl_z','l_ankl_vis',
+    'r_ankl_x','r_ankl_y','r_ankl_z','r_ankl_vis',
+]
 
 # Video 1
-cap = cv2.VideoCapture('D:\WORK\prj_3dhpe\data\\videos\smoke_ch_02.mp4')
+cap = cv2.VideoCapture('./data/videos/smoke_ch_02.mp4')
 mp_pose = mp.solutions.pose
 mp_draw = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 pose = mp_pose.Pose()
+
 df = pd.DataFrame()        # 빈 dataframe 생성
+clm = pd.DataFrame(clm_list).T
+
+df = pd.concat([df, clm])
+print(df)
+
 
 with mp_pose.Pose(
     min_detection_confidence=0.5,
@@ -63,27 +50,19 @@ with mp_pose.Pose(
                                 landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
             for id, lm in enumerate(results.pose_landmarks.landmark):
                 h, w, c = img.shape
-                # print(id, lm)
+                print(id, lm)
 
         cv2.imshow("Estimation", img)
 
         # 빈 리스트 x 생성
         x = []      
 
-        # 'left shoulder','right shoulder','left elbow','right elbow','left wrist','right wrist','left hip','right hip','left knee','right knee','left ankle','right ankle'
-        # k - landmarks 개수
-        # results.pose_landmarks.landmark[k].x/y/z/visibility로 k번째 landmarks의 정보를 가져올 수 있다
-        # x.append()
         for k in range(33):
-            # if (11 <= k < 17) | (23 <= k <29):
-            x.append(results.pose_landmarks.landmark[k].x)
-            x.append(results.pose_landmarks.landmark[k].y)
-            x.append(results.pose_landmarks.landmark[k].z)
-            x.append(results.pose_landmarks.landmark[k].visibility)
-        # x.append(results.pose_landmarks.landmark[0].x)
-        # x.append(results.pose_landmarks.landmark[0].y)
-        # x.append(results.pose_landmarks.landmark[0].z)
-        # x.append(results.pose_landmarks.landmark[0].visibility)
+            if (11 <= k < 17) | (23 <= k <29):
+                x.append(results.pose_landmarks.landmark[k].x)
+                x.append(results.pose_landmarks.landmark[k].y)
+                x.append(results.pose_landmarks.landmark[k].z)
+                x.append(results.pose_landmarks.landmark[k].visibility)
 
         # list x를 dataframe으로 변경
         tmp = pd.DataFrame(x).T
@@ -91,9 +70,8 @@ with mp_pose.Pose(
         # dataframe에 정보 쌓기(33개 landmarks의 (33*4, x y z, vis)132개 정보)
         df = pd.concat([df, tmp])
 
-        df.to_csv("test.csv")
+        df.to_csv("test.csv", index=False, header=False)
         cv2.waitKey(1)
-        print(df)
 
 
 
