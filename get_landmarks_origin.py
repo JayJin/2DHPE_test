@@ -3,6 +3,8 @@ import download_shorts, PoseDetection
 
 video_url_add = input('원본 유튜브 링크 :')
 download_results = download_shorts.download_video(video_url_add)
+
+chl_name = download_results['challenge_name']
 video_route = download_results['video_route']
 
 lm_result = PoseDetection.get_landmarks(video_route)

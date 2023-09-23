@@ -7,10 +7,11 @@ DOWNLOAD_DIR = r"./data/videos"
 
 def download_video(video_url):
     yt = YouTube(video_url)
-    video_title = (str(now.strftime('%Y%m%d%H%M'))+"_"+yt.title.split('#')[1]).rstrip()
+    chl_name = str(yt.title.split('#')[1])
+    video_title = (str(now.strftime('%Y%m%d%H%M'))+"_"+chl_name).rstrip()
     yt.streams.filter(res='360p', file_extension='mp4').first().download(output_path=DOWNLOAD_DIR, filename = f'{video_title}.mp4')
     video_route = f'./data/videos/{video_title}.mp4'
-    results = {'video_route' : video_route}
+    results = {'video_route' : video_route, 'video_title' : video_title, 'challenge_name': chl_name}
     return results
 
 # 직접 실행시
