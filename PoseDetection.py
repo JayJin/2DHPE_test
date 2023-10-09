@@ -21,7 +21,7 @@ clm_list = [
     'r_ankl_x','r_ankl_y','r_ankl_z','r_ankl_vis',
 ]
 
-def get_landmarks(video_route):
+def get_landmarks(video_route, file_type):
     print(video_route)
     cap = cv2.VideoCapture(video_route)
 
@@ -74,7 +74,7 @@ def get_landmarks(video_route):
                     # list x를 dataframe으로 변경하여 정보 쌓기(33개 landmarks의 (33*4, x y z, vis) 132개 정보)
                     tmp = pd.DataFrame(x).T
                     df = pd.concat([df, tmp])
-                    df.to_csv(f"./data/landmarks/{title}.csv", index=False, header=False)
+                    df.to_csv(f"./data/landmarks/{file_type}/{title}.csv", index=False, header=False)
             
                 cv2.imshow("Estimation", img)
                 cv2.waitKey(1)
