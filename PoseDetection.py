@@ -44,9 +44,11 @@ def get_landmarks(video_route, file_type):
 
     frame_count = 0
 
+
     with mp_pose.Pose(
         min_detection_confidence=0.5,
         min_tracking_confidence=0.5) as pose:
+        print("Extracting landmarks...")
         while True:
             ret, img = cap.read()
             if not ret:

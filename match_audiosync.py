@@ -12,20 +12,22 @@ def MatchSync(vpath_1, vpath_2):
     mp3_file2 = "./data/audios/audio_2.mp3"
 
     # Audio 파일 생성
+    print('Creating Audio files...')
     audio1 = video1.audio.write_audiofile(mp3_file1)
     audio2 = video2.audio.write_audiofile(mp3_file2)
 
     # Audio 파일 load
-    print('파일 로드 중...')
+    print('Loading audio files...')
     y1, sr1 = librosa.load(mp3_file1)
     y2, sr2 = librosa.load(mp3_file2)
 
     # cross-correlation 계산
-    print('cross correlation 계산 중...')
+    print('Calculating Cross-Correlation...')
     correlation = np.correlate(y1, y2, mode='full')
     peak_index = np.argmax(correlation)         # peak index (correlation이 가장 큰 지점의 인덱스)
+    print("peak index: ", peak_index)
 
     # sync 차이 계산 (peak 위치를 초 단위로 변환)
     sync_difference_seconds = (peak_index - len(y2) + 1) / sr1
-    print(f"두 MP3 파일의 sync 차이는 약 {sync_difference_seconds:.2f} 초입니다.")
+    print(f"Sync difference: 약 {sync_difference_seconds:.2f}sec")
     return sync_difference_seconds
