@@ -27,3 +27,4 @@ lm_result = PoseDetection.get_landmarks(video_route)
 # Compare
 
 # test link : https://www.youtube.com/shorts/5rHxqoJZG60
+# test link2 : https://www.youtube.com/shorts/7Sakx1F8AIs

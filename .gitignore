@@ -144,6 +144,8 @@ venv.bak/
 # Data
 .videos
 videos/
+.audios
+audios/
 
 # Spyder project settings
 .spyderproject
@@ -234,3 +236,5 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/python,opencv,visualstudiocode,windows
 
 *.csv
+*.mp4
+*.mp3
